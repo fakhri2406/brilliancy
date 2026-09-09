@@ -39,7 +39,28 @@ See `README.md`.
 
 ## Runtime dependencies distributed to users
 
-None. Nothing in this repository is shipped to a user yet.
+Everything below is bundled into `apps/web` and therefore served to every
+visitor. Versions are the ones pinned in `pnpm-workspace.yaml`'s catalog and
+resolved in `pnpm-lock.yaml`.
+
+### react 19.2.8
+
+- Licence: MIT
+- Copyright (c) Meta Platforms, Inc. and affiliates
+- Source: https://github.com/facebook/react
+
+### react-dom 19.2.8
+
+- Licence: MIT
+- Copyright (c) Meta Platforms, Inc. and affiliates
+- Source: https://github.com/facebook/react
+
+### scheduler 0.27.0
+
+- Licence: MIT
+- Copyright (c) Meta Platforms, Inc. and affiliates
+- Source: https://github.com/facebook/react
+- Transitive: pulled in by `react-dom`. Listed because it ships.
 
 ## Not yet dependencies
 
