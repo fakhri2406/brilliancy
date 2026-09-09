@@ -16,7 +16,8 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "test": "turbo run test",
-    "dev": "turbo run dev"
+    "dev": "turbo run dev",
+    "check:deps": "node tools/check-deps.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
