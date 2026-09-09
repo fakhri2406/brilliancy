@@ -1,0 +1,50 @@
+# NOTICES
+
+Third-party attribution notices for Brilliancy.
+
+## The convention (spec §2.3)
+
+**Any dependency carrying an attribution requirement is added to this file in the
+same commit that adds the dependency. Never later.**
+
+A dependency added without its NOTICES entry is an incomplete commit, and every
+commit on a feature branch has to stand on its own (§0.2) — so the entry cannot
+be deferred to a follow-up.
+
+Scope:
+
+- Listed here: anything with an attribution requirement that is **distributed to
+  users** — shipped in the browser bundle, embedded as a static asset, vendored
+  into the repository, or baked into a server image. This includes, at minimum,
+  the MIT, BSD-2-Clause, BSD-3-Clause, Apache-2.0, ISC, CC-BY, CC-BY-SA and
+  GPL/LGPL/AGPL families.
+- Also listed: vendored public-domain data (CC0, Unlicense). There is no legal
+  requirement, but provenance of vendored data is worth recording — see §2.5.
+- Not listed: development-only tooling that is never distributed (the compiler,
+  the test runner, the linter, the build orchestrator).
+
+Each entry records the package or asset, its SPDX licence identifier, and the
+source URL. Transitive dependencies that ship to users are listed too — the
+obligation follows the bytes, not the `package.json`.
+
+## Brilliancy itself
+
+Brilliancy is licensed **AGPL-3.0-or-later**. The full text is in `LICENSE`.
+
+Copyright (C) 2026 Brilliancy contributors.
+
+Brilliancy is offered to users over a network, so AGPL §13 applies: any operator
+of a modified version must offer that version's users its corresponding source.
+See `README.md`.
+
+## Runtime dependencies distributed to users
+
+None. Nothing in this repository is shipped to a user yet.
+
+## Not yet dependencies
+
+Deliberately empty. Stockfish (GPL-3.0-or-later), `@lichess-org/chessground`
+(GPL-3.0-or-later), `chess.js`, the `lichess-org/chess-openings` ECO data (CC0)
+and the Cburnett piece set (CC-BY-SA 3.0) are all named in §0.2 and §2.5 as
+future dependencies, and each gets its entry above in the commit that adds it —
+not before, and not in a follow-up.
