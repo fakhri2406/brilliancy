@@ -1,7 +1,13 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import * as protocol from './index.js';
 
-const RUNTIME_SURFACE = ['WhiteScore', 'toMover'] as const;
+const RUNTIME_SURFACE = [
+  'UciSyntaxError',
+  'WhiteScore',
+  'normaliseInfo',
+  'parseInfo',
+  'toMover',
+] as const;
 
 describe('@brilliancy/engine-protocol', () => {
   it('exports exactly the public runtime surface', () => {
