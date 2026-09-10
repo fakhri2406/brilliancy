@@ -17,10 +17,18 @@
     "format": "biome format --write .",
     "test": "turbo run test",
     "dev": "turbo run dev",
-    "check:deps": "node tools/check-deps.mjs"
+    "verify": "pnpm run check:deps && pnpm run check:comments && pnpm run lint && pnpm run typecheck && pnpm run build && pnpm run test",
+    "test:e2e": "playwright test",
+    "check:deps": "node tools/check-deps.mjs",
+    "check:comments": "node tools/check-comments.mjs",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
+    "@commitlint/cli": "21.2.2",
+    "@commitlint/config-conventional": "21.2.2",
+    "@playwright/test": "1.63.0",
+    "husky": "9.1.7",
     "turbo": "2.10.12",
     "typescript": "catalog:"
   }
