@@ -28,7 +28,14 @@ export type MoverScore = MoverScoreBody & Branded<'mover'>;
 
 const asWhite = (body: WhiteScoreBody): WhiteScore => body as WhiteScore;
 
+const asMover = (body: MoverScoreBody): MoverScore => body as MoverScore;
+
 const withoutNegativeZero = (value: number): number => (value === 0 ? 0 : value);
+
+const negated = (value: number): number => (value === 0 ? 0 : -value);
+
+export const negatedWhenBlackToMove = (value: number, sideToMove: SideToMove): number =>
+  sideToMove === 'w' ? withoutNegativeZero(value) : negated(value);
 
 export const WhiteScore = {
   cp(cp: number): WhiteScore {
@@ -51,3 +58,20 @@ export const WhiteScore = {
     return asWhite({ kind: 'terminal', outcome });
   },
 };
+
+const MOVER_OUTCOME: Readonly<Record<SideToMove, Readonly<Record<TerminalOutcome, MoverOutcome>>>> =
+  {
+    w: { white: 'win', black: 'loss', draw: 'draw' },
+    b: { white: 'loss', black: 'win', draw: 'draw' },
+  };
+
+export function toMover(score: WhiteScore, sideToMove: SideToMove): MoverScore {
+  switch (score.kind) {
+    case 'cp':
+      return asMover({ kind: 'cp', cp: negatedWhenBlackToMove(score.cp, sideToMove) });
+    case 'mate':
+      return asMover({ kind: 'mate', plies: negatedWhenBlackToMove(score.plies, sideToMove) });
+    case 'terminal':
+      return asMover({ kind: 'terminal', outcome: MOVER_OUTCOME[sideToMove][score.outcome] });
+  }
+}

@@ -19,6 +19,7 @@
     "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput"
   },
   "devDependencies": {
+    "fast-check": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
