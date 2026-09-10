@@ -7,6 +7,7 @@ catalog:
   "@types/react": 19.2.18
   "@types/react-dom": 19.2.7
   "@vitejs/plugin-react": 6.1.1
+  fast-check: 4.9.0
   react: 19.2.8
   react-dom: 19.2.8
   typescript: 7.0.2

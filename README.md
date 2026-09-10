@@ -13,8 +13,9 @@ The authoritative technical specification is [`docs/spec/v1.1.md`](docs/spec/v1.
 Its section numbers are the contract — cite them in commits, PRs and code
 comments.
 
-**Status: scaffolding.** There is no chess in this repository yet. Phase 0a of
-the build order in §11.
+**Status: Phase 1, step 1 of the build order in §11.** The score types, the UCI
+`info` parser and the win-probability maths of §5.6 and §6.1 are in. Nothing
+renders a board or runs an engine yet.
 
 ## Licence
 

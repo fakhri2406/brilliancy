@@ -1,1 +1,2 @@
-export const PACKAGE_NAME = '@brilliancy/analysis-core';
+export { accuracyPercent } from './accuracy.js';
+export { winPercent } from './win-percent.js';

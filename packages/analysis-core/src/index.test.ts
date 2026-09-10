@@ -1,15 +1,15 @@
 import { PACKAGE_NAME as CHESS_UTILS } from '@brilliancy/chess-utils';
-import { PACKAGE_NAME as ENGINE_PROTOCOL } from '@brilliancy/engine-protocol';
+import { toMover, WhiteScore } from '@brilliancy/engine-protocol';
 import { describe, expect, it } from 'vitest';
-import { PACKAGE_NAME } from './index.js';
+import * as core from './index.js';
 
 describe('@brilliancy/analysis-core', () => {
-  it('resolves its entry point', () => {
-    expect(PACKAGE_NAME).toBe('@brilliancy/analysis-core');
+  it('exports exactly the public runtime surface', () => {
+    expect(Object.keys(core).sort()).toEqual(['accuracyPercent', 'winPercent']);
   });
 
   it('resolves both permitted workspace dependencies from their built output (§4.2)', () => {
-    expect(ENGINE_PROTOCOL).toBe('@brilliancy/engine-protocol');
     expect(CHESS_UTILS).toBe('@brilliancy/chess-utils');
+    expect(core.winPercent(toMover(WhiteScore.cp(0), 'w'))).toBe(50);
   });
 });

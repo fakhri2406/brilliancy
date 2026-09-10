@@ -90,6 +90,28 @@ only, so the compiler refuses a `WhiteScore`. `RawInfoLine` never escapes
 `engine-protocol`. Mate is stored in **signed plies**, not moves
 (`plies = n > 0 ? 2n - 1 : 2n`), and is never re-based across plies.
 
+How that is enforced, since prompt 0b.1
+([`0003-white-positive-scores.md`](docs/decisions/0003-white-positive-scores.md)):
+
+- A score changes frame in exactly two functions, both in `engine-protocol`:
+  `normaliseInfo` takes engine-perspective UCI output to White-positive at the
+  reader boundary, and `toMover` takes White-positive to mover-relative. Nothing
+  else negates a score.
+- `WhiteScore` and `MoverScore` are branded in **both directions**: neither is
+  assignable to the other, so a mover-relative value cannot reach a
+  `WhiteScore`-typed slot (the wire, the database, the cache) any more than a
+  White-positive one can reach `winPercent`. Build a `WhiteScore` only through
+  `WhiteScore.cp`, `WhiteScore.mate` and `WhiteScore.terminal`; a `MoverScore`
+  only through `toMover`. The two casts that attach the brand live in
+  `packages/engine-protocol/src/score.ts` and nowhere else.
+- A mover-relative terminal score reads `win | loss | draw`, never a colour.
+  Only `WhiteScore` carries `white | black | draw`.
+- UCI `mate 0` means the side to move is already checkmated; `normaliseInfo`
+  reports it as the terminal result, because a White-positive mate with zero
+  plies has no sign. `WhiteScore.mate(0)` throws.
+- A `lowerbound` or `upperbound` swaps when the sign flips; `InfoLine.scoreBound`
+  is already oriented for White.
+
 ### The classification pipeline (§6.0) — four passes, one direction
 
 0 Replay → 1 Sweep (the only engine pass) → 2 Context → 3 Classify → 4 Report.
@@ -215,17 +237,18 @@ purpose. The likeliest future edge is `openings → chess-utils`, because §8.1
 keys the `openings` table on `fen_hash` and §8.2 puts `fenHash` in
 `chess-utils`. Add it when the code needs it, and record §8.2 as the reason.
 
-What each package will hold. All four are stubs today, exporting only a
-`PACKAGE_NAME` constant that their smoke test asserts, so a broken build or a
-broken `exports` map fails loudly rather than silently producing an empty
-`dist`.
+What each package holds. `chess-utils` and `openings` are stubs today, exporting
+only a `PACKAGE_NAME` constant that their smoke test asserts, so a broken build
+or a broken `exports` map fails loudly rather than silently producing an empty
+`dist`. `engine-protocol` and `analysis-core` carry real code since prompt 0b.1
+and pin their runtime export surface in a test instead.
 
 | Package | Contents | Phase |
 |---|---|---|
-| `engine-protocol` | `WhiteScore`, `MoverScore`, `toMover`, `normaliseInfo`, and the defensive UCI `info` parser. `RawInfoLine` never leaves this package (§5.5, §5.6). | 1 |
+| `engine-protocol` | `WhiteScore` (type and constructors), `MoverScore`, `SideToMove`, `toMover`, `parseInfo`, `normaliseInfo`, `InfoLine`, `PvLine`, `UciSyntaxError`. `RawInfoLine` never leaves this package (§5.5, §5.6). **Landed in 0b.1.** | 1 |
 | `chess-utils` | Own 0x88/mailbox board, `attackersTo` **with x-ray attackers**, the SEE swap algorithm and its ≥40-position golden suite (§6.5.1), `fenHash` + `HASH_VERSION` (§8.2), PGN normalisation. Budget a week, not an afternoon. | 1 |
 | `openings` | `lichess-org/chess-openings` vendored at a **pinned commit** (CC0, five TSV files by ECO volume), plus the lookup trie the Pass 0 replay walks for `inBook` and the ECO code. | 1 |
-| `analysis-core` | `winPercent`, `accuracyPercent`, the four passes of §6.0, `classify`, the game report. Pure, synchronous, dependency-light — which is why it compiles under `nodenext`. | 1 |
+| `analysis-core` | `winPercent`, `accuracyPercent` (**landed in 0b.1**), then the four passes of §6.0, `classify` and the game report. Pure, synchronous, dependency-light — which is why it compiles under `nodenext`. | 1 |
 
 `apps/api`, `apps/engine-worker` and `packages/db` do not exist yet. Per §11,
 `apps/api` and `packages/db` arrive in **Phase 3** (Fastify, Postgres, Drizzle,
@@ -259,8 +282,12 @@ workspace globs and the policy table already cover all three.
   written to `position_cache`**: they are a property of the game's history, not
   of the position. Resignation, timeout, abandonment and agreement produce a
   **non-terminal** final position and are searched normally.
-- **Never flip a score's sign outside `toMover`** (§5.6), and never persist,
-  transmit, cache or render a mover-relative number.
+- **Never flip a score's sign outside `normaliseInfo` and `toMover`** (§5.6) —
+  the first takes engine output to White-positive, the second White-positive to
+  mover-relative — and never persist, transmit, cache or render a mover-relative
+  number. Never build a `WhiteScore` or `MoverScore` by object literal or cast
+  outside `packages/engine-protocol/src/score.ts`; go through `WhiteScore.cp`,
+  `WhiteScore.mate`, `WhiteScore.terminal` and `toMover`.
 - **Never let Pass 2 read a Pass 3 label** (§6.0). See section 3 above.
 - **Never ship two different engine binaries under one `engine_version` string**
   (§5.1). Format is `sf19-{tier}-{buildHash8}`. This corrupts the cache in a way
@@ -339,6 +366,20 @@ opens.
 So: name things so that no comment is wanted. If a piece of code genuinely
 cannot be followed without prose, the prose belongs in a decision record, and
 the record's existence is the signal that the code is subtle.
+
+**Type-level tests.** A guarantee the compiler provides is tested with
+`expectTypeOf` from Vitest inside an ordinary `*.test.ts` file —
+`expectTypeOf<MoverScore>().not.toExtend<WhiteScore>()`. Each package's
+`tsconfig.json` includes its tests, so `pnpm typecheck` fails the moment such an
+assertion stops holding, and `pnpm test` runs the file as a no-op. Do not reach
+for `@ts-expect-error`: it is a comment, `check:comments` rejects it, and it
+would take the assertion out of the type checker's normal path anyway.
+
+**Property tests.** `fast-check`, pinned once in the catalog and added as a
+`devDependency` of each package that uses it. Development-only and never
+shipped, so it needs no `NOTICES` entry (§2.3). Use it for the invariants §13
+names — ranges, symmetries, round trips — alongside, never instead of, the
+fixed-point cases that pin the constants.
 
 ## Commands
 
