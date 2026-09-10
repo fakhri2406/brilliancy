@@ -17,7 +17,8 @@
     "format": "biome format --write .",
     "test": "turbo run test",
     "dev": "turbo run dev",
-    "check:deps": "node tools/check-deps.mjs"
+    "check:deps": "node tools/check-deps.mjs",
+    "check:comments": "node tools/check-comments.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
