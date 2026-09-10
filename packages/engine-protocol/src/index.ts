@@ -1,1 +1,2 @@
-export const PACKAGE_NAME = '@brilliancy/engine-protocol';
+export type { MoverOutcome, MoverScore, SideToMove, TerminalOutcome } from './score.js';
+export { WhiteScore } from './score.js';
