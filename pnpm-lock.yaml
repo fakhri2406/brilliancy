@@ -94,6 +94,9 @@ importers:
         specifier: workspace:*
         version: link:../engine-protocol
     devDependencies:
+      fast-check:
+        specifier: 'catalog:'
+        version: 4.9.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2

@@ -23,6 +23,7 @@
     "@brilliancy/engine-protocol": "workspace:*"
   },
   "devDependencies": {
+    "fast-check": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
